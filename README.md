@@ -64,6 +64,39 @@ cpt compare ./datagen ./ac ./wa
 - **`continue`** — Keep going after a mismatch.
 - **`pause`** — Ask the user whether to continue.
 
+## Cache Management
+
+Comparison data (input, outputs, judger result) can be automatically saved to `~/.cpt/cache/` when `--logging` is set to `all` or `mismatches`. The following commands manage these cache files:
+
+### cache-list
+
+List all saved cache entries with their ID, creation time, and shell parameters.
+
+```
+cpt cache-list [-n <num>]
+```
+
+### cache-purge
+
+Clear all cached data.
+
+```
+cpt cache-purge
+```
+
+### recover
+
+Recover cached files to a target directory.
+
+```
+cpt recover [cache_id] [-o <target_directory>]
+```
+
+- `cache_id` — The cache ID to recover (defaults to the most recent cache).
+- `-o, --output` — Target directory (defaults to the current directory).
+
+Recovered files preserve their step subdirectory structure (`1/data.in`, `1/progA.out`, etc.).
+
 ## Built-in Judgers
 
 | Judger | Description |
@@ -89,6 +122,7 @@ A judger is any executable that reads three CLI arguments (data file, program A 
 ├── lib/
 │   ├── __init__.py          # Package marker
 │   ├── common/__init__.py   # Subprocess and runtime utilities
+│   ├── cache.py             # Cache management (save, list, purge, recover)
 │   └── compare.py           # Core comparison workflow
 ├── judgers/
 │   ├── default.py           # Default line-by-line judger

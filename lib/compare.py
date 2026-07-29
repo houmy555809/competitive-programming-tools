@@ -4,7 +4,7 @@ import tempfile
 import os
 import ast
 
-from . import common
+from . import common, cache
 
 class ValidationStatus(Enum):
     GENERATING_DATA = 0
@@ -57,7 +57,7 @@ def _set_status(prefix, status, msg):
     _last_msg = prefix + ' ' + msg
 
 
-def _validate_once(prefix, datagen, progA, progB, judger, max_runtime):
+def _validate_once(prefix, datagen, progA, progB, judger, max_runtime, logging):
     """ Runs the whole process once. Returns a ValidationResult instance. """
 
     if isinstance(max_runtime, float):
@@ -98,11 +98,23 @@ def _validate_once(prefix, datagen, progA, progB, judger, max_runtime):
             return ValidationResult(ValidationResultType.JUDGE_FAILED, datagen_result, progA_result, progB_result, judger_result, "Judge Failed", None)
         judger_output = judger_result.output.strip()
 
-        if judger_output.startswith("OK") or judger_output.startswith("AC"):
+        is_accepted = judger_output.startswith("OK") or judger_output.startswith("AC")
+
+        if is_accepted:
             _set_status(prefix, ValidationStatus.PASSED, "Accepted")
+            if logging == "all":
+                cache.dump_file(prefix, "data.in", generated_data)
+                cache.dump_file(prefix, "progA.out", progA_output)
+                cache.dump_file(prefix, "progB.out", progB_output)
+                cache.dump_file(prefix, "judger.txt", judger_output)
             return ValidationResult(ValidationResultType.PASSED, datagen_result, progA_result, progB_result, judger_result, "Accepted", None)
         else:
             _set_status(prefix, ValidationStatus.WRONG, "Wrong Answer")
+            if logging in ("all", "mismatches"):
+                cache.dump_file(prefix, "data.in", generated_data)
+                cache.dump_file(prefix, "progA.out", progA_output)
+                cache.dump_file(prefix, "progB.out", progB_output)
+                cache.dump_file(prefix, "judger.txt", judger_output)
             return ValidationResult(ValidationResultType.WRONG, datagen_result, progA_result, progB_result, judger_result, "Wrong Answer", None)
 
     except Exception as err:
@@ -142,6 +154,7 @@ def work(args):
     mismatch_strategy = args.mismatch
     n_steps = args.num_steps
     max_runtime = args.max_runtime
+    logging = args.logging
 
     max_runtime = ast.literal_eval(args.max_runtime)
 
@@ -149,7 +162,7 @@ def work(args):
         if strategy == "limited_steps":
             for step_id in range(1, n_steps + 1):
                 tot_steps += 1
-                res = _validate_once(str(step_id), datagen, program_a, program_b, judger, max_runtime)
+                res = _validate_once(str(step_id), datagen, program_a, program_b, judger, max_runtime, logging)
                 if res.type != ValidationResultType.PASSED:
                     _handle_mismatch(mismatch_strategy)
                 else: passed_steps += 1
@@ -158,7 +171,7 @@ def work(args):
         elif strategy == "nonstop":
             while True:
                 tot_steps += 1
-                res = _validate_once(str(tot_steps), datagen, program_a, program_b, judger, max_runtime)
+                res = _validate_once(str(tot_steps), datagen, program_a, program_b, judger, max_runtime, logging)
                 if res.type != ValidationResultType.PASSED:
                     _handle_mismatch(mismatch_strategy)
                 else: passed_steps += 1
