@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import lib
 class PerToken(lib.Validator):
     def __init__(self):
