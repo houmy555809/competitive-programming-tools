@@ -1,11 +1,11 @@
-import argparse, pathlib, os, json
+#!/bin/python3
+
+import argparse, pathlib, sys
 
 import lib.compare as _compare
 
 if __name__ == "__main__":
-
     current_path = pathlib.Path(__file__).parent
-
     parser = argparse.ArgumentParser(prog = 'cpt', description = 'Competitve Programming Tools')
     subparsers = parser.add_subparsers(dest = 'command', help = 'Available subcommands')
 

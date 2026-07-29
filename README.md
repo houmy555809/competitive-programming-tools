@@ -1,8 +1,22 @@
 # CPT - Competitive Programming Tools
 
-A CLI tool for stress-testing competitive programming solutions by comparing two programs on generated test data.
+A CLI tool for stress-testing competitive programming solutions by comparing two programs on randomly generated test data.
+
+## Installation
+
+```bash
+bash build.sh
+```
+
+This copies the tool to `~/.cpt`, renames `main.py` to `cpt`, and adds it to your `PATH`.
 
 ## Usage
+
+```
+cpt compare <datagen> <program_a> <program_b> [options]
+```
+
+Or without installation:
 
 ```
 python3 main.py compare <datagen> <program_a> <program_b> [options]
@@ -16,7 +30,7 @@ Compile the examples and run a comparison:
 g++ examples/aplusb/datagen.cpp -o datagen
 g++ examples/aplusb/ac.cpp -o ac
 g++ examples/aplusb/wa.cpp -o wa
-python3 main.py compare ./datagen ./ac ./wa
+cpt compare ./datagen ./ac ./wa
 ```
 
 ## Options
@@ -64,13 +78,16 @@ python3 main.py compare ./datagen ./ac ./wa
 
 ## Custom Judgers
 
-A judger is an executable file that reads three CLI arguments (data file, program A output, program B output) and outputs the validation result. Testlib judgers are directly compatible.
+A judger is any executable that reads three CLI arguments (data file, program A output, program B output) and outputs a line starting with `OK`/`AC` to accept or anything else to reject. Compatible with testlib-style judgers. The built-in Python judgers under `judgers/` use the base `lib.Validator` class for convenience.
 
 ## Project Structure
 
 ```
+├── __init__.py              # Package marker
 ├── main.py                  # CLI entry point
+├── build.sh                 # Installation script
 ├── lib/
+│   ├── __init__.py          # Package marker
 │   ├── common/__init__.py   # Subprocess and runtime utilities
 │   └── compare.py           # Core comparison workflow
 ├── judgers/
