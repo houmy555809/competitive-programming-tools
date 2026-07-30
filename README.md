@@ -124,7 +124,7 @@ The `-c/--caching` option controls when input/output files are preserved in `~/.
 | `both` (default) | WA and execution failures |
 | `all` | Every step regardless of result |
 
-Use `cpt list` to view cached entries and `cpt dump` to recover files to a working directory.
+Use `cpt cache list` to view cached entries and `cpt dump` to recover files to a working directory.
 
 ## Built-in Judgers
 
@@ -158,6 +158,6 @@ A judger is any executable that reads three CLI arguments (data file, program A 
 │   ├── lib/__init__.py      # Base Validator class and helpers
 │   └── ...                  # Other built-in judgers
 └── examples/
-    ├── aplusb/              # A+B problem (AC, WA, TLE, datagen)
+    ├── aplusb/              # A+B problem (AC, WA, TLE, RE, datagen)
     └── helloworld/          # Hello world (AC, WA variants, datagen)
 ```
