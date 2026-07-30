@@ -28,7 +28,10 @@ def run_process(executable, inputs, max_runtime = 1.0):
     try:
         proc = subprocess.Popen(executable, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.DEVNULL, bufsize = 1, text = True)
         output, _ = proc.communicate(input = inputs, timeout = 1e9 if max_runtime < 0 else max_runtime)
-        return ProcRunResult(ProcTerminateType.SUCCESS, output, 0, None)
+        if proc.returncode == 0:
+            return ProcRunResult(ProcTerminateType.SUCCESS, output, 0, None)
+        else:
+            return ProcRunResult(ProcTerminateType.RE, output, proc.returncode, None)
     except subprocess.CalledProcessError as err:
         return ProcRunResult(ProcTerminateType.RE, "", str(err.returncode), 0, err)
     except subprocess.TimeoutExpired as err:

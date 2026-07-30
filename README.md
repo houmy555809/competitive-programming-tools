@@ -120,7 +120,7 @@ The `-c/--caching` option controls when input/output files are preserved in `~/.
 |---|---|
 | `none` | Never |
 | `mismatches` | WA result |
-| `failures` | program/judge execution failure |
+| `failures` | WA, or program/judge execution failure |
 | `both` (default) | WA and execution failures |
 | `all` | Every step regardless of result |
 

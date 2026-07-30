@@ -50,7 +50,7 @@ if __name__ == "__main__":
         _cache.list_files(args)
     elif args.command == "cache" and args.subcommand == "purge":
         _cache.purge()
-    elif args.command == "recover":
+    elif args.command == "dump":
         _cache.recover(args)
     elif args.command == "workspace" and args.subcommand == "set":
         _workspace.set_workspace(args)
