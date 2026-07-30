@@ -7,7 +7,7 @@ import uuid
 import json
 import sys
 
-from . import common
+from . import common, workspace
 
 root = os.path.expanduser("~")
 
@@ -78,7 +78,7 @@ def recover(args):
 
     if args.cache_id is None:
         if not readers:
-            print(f"Cache '{args.cache_id}' not found.")
+            print(f"Nothing to recover.")
             return
         reader = readers[0]
     else:
@@ -88,7 +88,14 @@ def recover(args):
             return
         reader = CacheFolderReader(target_path)
 
-    target_dir = os.path.abspath(args.output)
+    target_dir = args.output
+    if args.use_workspace:
+        cur_workspace = workspace.get_workspace()
+        if cur_workspace is None:
+            print("No workspace assigned. Please disable the -w/--workspace argument or assign a workspace with `cpt workspace`.")
+            exit(0)
+        target_dir = os.path.join(cur_workspace.path, target_dir)
+    target_dir = os.path.abspath(target_dir)
     if not os.path.exists(target_dir):
         os.makedirs(target_dir)
 
