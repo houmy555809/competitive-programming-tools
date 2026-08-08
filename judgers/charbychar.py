@@ -1,22 +1,21 @@
 #!/usr/bin/python3
 
 import lib
+
+
 class CharByChar(lib.Validator):
-    def __init__(self):
-        super(CharByChar, self).__init__()
     def judge(self, filea, fileb):
-        contenta = self.filea_read()
-        contentb = self.fileb_read()
-        contenta = contenta.rstrip("\n")
-        contentb = contentb.rstrip("\n")
-        if len(contenta) != len(contentb):
-            lib.report("WA", "The length of the two files differ. Sizes are (" + str(len(contenta)) + " and " + str(len(contentb)) + ").")
+        content_a = self.filea_read().rstrip("\n")
+        content_b = self.fileb_read().rstrip("\n")
+        if len(content_a) != len(content_b):
+            lib.report("WA", f"The length of the two files differ. Sizes are ({len(content_a)} and {len(content_b)}).")
             return
-        for i in range(len(contenta)):
-            if contenta[i] != contentb[i]:
-                lib.report("WA", "Char %d differ. Read %s and %s." % (i, lib.escape(contenta[i]), lib.escape(contentb[i])))
+        for i in range(len(content_a)):
+            if content_a[i] != content_b[i]:
+                lib.report("WA", f"Char {i} differ. Read {lib.escape(content_a[i])} and {lib.escape(content_b[i])}.")
                 return
         lib.report("AC", "Accepted.")
-        return
+
+
 judger = CharByChar()
 judger()

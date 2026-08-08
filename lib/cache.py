@@ -1,88 +1,89 @@
-from enum import Enum
-from colorama import *
+import json
 import os
 import shutil
-from datetime import datetime
-import uuid
-import json
 import sys
+import uuid
+from datetime import datetime
 
-from . import common, workspace
+from . import workspace
 
-root = os.path.expanduser("~")
+ROOT = os.path.expanduser("~")
+CACHE_DIR = os.path.join(ROOT, ".cpt", "cache")
 
-if not os.path.exists(root + "/.cpt"): os.mkdir(root + "/.cpt")
-if not os.path.exists(root + "/.cpt/cache"): os.mkdir(root + "/.cpt/cache")
-
-folder_name = root + "/.cpt/cache/"
+os.makedirs(CACHE_DIR, exist_ok = True)
 
 task_id = str(uuid.uuid4())
-task_folder = os.path.join(folder_name, task_id)
+task_folder = os.path.join(CACHE_DIR, task_id)
+
 
 def check_create_cache_file():
-    global task_id, task_folder
     if not os.path.exists(task_folder):
-        os.mkdir(task_folder)
-        json.dump({
-            "time": str(datetime.now()),
-            "argv": sys.argv
-        }, open(os.path.join(task_folder, "meta.json"), "w"))
+        os.makedirs(task_folder)
+        with open(os.path.join(task_folder, "meta.json"), "w", encoding = "utf-8") as f:
+            json.dump({
+                "time": str(datetime.now()),
+                "argv": sys.argv
+            }, f)
+
 
 def dump_file(folder, name, content):
-    global task_folder
     check_create_cache_file()
     cur_folder = os.path.join(task_folder, folder)
     if not os.path.exists(cur_folder):
         os.mkdir(cur_folder)
     filename = os.path.join(cur_folder, name)
-    open(filename, "w", encoding = "utf-8").write(content)
+    with open(filename, "w", encoding = "utf-8") as f:
+        f.write(content)
     return filename
+
 
 class CacheFolderReader:
     def __init__(self, path):
-        if path.endswith("/"): path = path[:-1]
+        if path.endswith("/"):
+            path = path[:-1]
         self.path = path
-        self.uuid = self.path.split("/")[-1]
-        self.data = json.load(open(os.path.join(path, "meta.json"), "r"))
-        self.createdTimeStr = self.data["time"]
-        self.createdTime = datetime.strptime(self.data["time"], "%Y-%m-%d %H:%M:%S.%f")
+        self.uuid = path.split("/")[-1]
+        with open(os.path.join(path, "meta.json"), "r", encoding = "utf-8") as f:
+            self.data = json.load(f)
+        self.created_time_str = self.data["time"]
+        self.created_time = datetime.strptime(self.data["time"], "%Y-%m-%d %H:%M:%S.%f")
         self.argv = self.data["argv"]
 
-    def print(self):
-        print("%-40s%-40s%s" % (self.uuid, self.createdTimeStr, ' '.join(self.argv[1:])))
+    def show(self):
+        print(f"{self.uuid:<40}{self.created_time_str:<40}{' '.join(self.argv[1:])}")
+
 
 def _get_cached_folders():
-    base_path = root + "/.cpt/cache"
-    _, folders, _ = next(os.walk(base_path))
+    _, folders, _ = next(os.walk(CACHE_DIR))
     readers = []
     for folder in folders:
-        readers.append(CacheFolderReader(os.path.join(base_path, folder)))
-    readers.sort(key = lambda x: x.createdTime, reverse = True)
+        readers.append(CacheFolderReader(os.path.join(CACHE_DIR, folder)))
+    readers.sort(key = lambda x: x.created_time, reverse = True)
     return readers
+
 
 def list_files(args):
     num = args.num
-    base_path = root + "/.cpt/cache"
-    print("%-40s%-40s%s" % ("Cache ID", "Creation Time", "Shell Parameters"))
+    print(f"{'Cache ID':<40}{'Creation Time':<40}Shell Parameters")
     for reader in _get_cached_folders()[:num]:
-        reader.print()
+        reader.show()
+
 
 def purge():
-    base_path = root + "/.cpt/cache"
     for reader in _get_cached_folders():
         shutil.rmtree(reader.path)
 
+
 def recover(args):
-    base_path = root + "/.cpt/cache"
     readers = _get_cached_folders()
 
     if args.cache_id is None:
         if not readers:
-            print(f"Nothing to recover.")
+            print("Nothing to recover.")
             return
         reader = readers[0]
     else:
-        target_path = os.path.join(base_path, args.cache_id)
+        target_path = os.path.join(CACHE_DIR, args.cache_id)
         if not os.path.exists(target_path):
             print(f"Cache '{args.cache_id}' not found.")
             return

@@ -1,7 +1,7 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
 unsigned int a, b, c;
-int main(){
+int main() {
     //brute-force approach;
     cin >> a >> b;
     for(int i = 0; i < a; i++) c++;

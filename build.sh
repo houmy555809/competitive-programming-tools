@@ -1,13 +1,16 @@
 #!/bin/bash
+set -e
 
-if ! [ -d $HOME/.cpt ]; then
-    mkdir $HOME/.cpt
-fi
-cp -r $(pwd)/* $HOME/.cpt
-mv $HOME/.cpt/main.py $HOME/.cpt/cpt
+CPT_DIR="$HOME/.cpt"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-chmod a+x $HOME/.cpt/cpt $HOME/.cpt/judgers/*.py
-cat >>$HOME/.bashrc <<-EOF
+mkdir -p "$CPT_DIR"
+cp -r "$SCRIPT_DIR"/* "$CPT_DIR/"
+mv "$CPT_DIR/main.py" "$CPT_DIR/cpt"
+
+chmod a+x "$CPT_DIR/cpt" "$CPT_DIR"/judgers/*.py
+if [ ! -f "$HOME/.bashrc" ] || ! grep -q 'export PATH=.*\$HOME/.cpt' "$HOME/.bashrc"; then
+    cat >>"$HOME/.bashrc" <<-EOF
 export PATH="\$PATH:\$HOME/.cpt"
 EOF
-source $HOME/.bashrc
+fi

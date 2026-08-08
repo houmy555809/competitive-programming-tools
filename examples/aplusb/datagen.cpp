@@ -2,7 +2,7 @@
 #include <chrono>
 using namespace std;
 
-int main(){
+int main() {
     chrono::milliseconds ms = chrono::duration_cast<chrono::milliseconds>(
         chrono::system_clock::now().time_since_epoch()
     );

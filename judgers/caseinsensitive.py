@@ -1,34 +1,29 @@
 #!/usr/bin/python3
 
 import lib
+
+
 class CaseInsensitive(lib.Validator):
-    def __init__(self):
-        super(CaseInsensitive, self).__init__()
     def judge(self, filea, fileb):
-        contenta = self.filea_read().split("\n")
-        contentb = self.fileb_read().split("\n")
-        for i in range(len(contenta) - 1, -1, -1):
-            if contenta[i].rstrip() == "":
-                del contenta[i]
-            else:
-                break
-        for i in range(len(contentb) - 1, -1, -1):
-            if contentb[i].rstrip() == "":
-                del contentb[i]
-            else:
-                break
-        common_len = min(len(contenta), len(contentb))
+        content_a = self.filea_read().split("\n")
+        content_b = self.fileb_read().split("\n")
+        while content_a and content_a[-1].rstrip() == "":
+            content_a.pop()
+        while content_b and content_b[-1].rstrip() == "":
+            content_b.pop()
+        common_len = min(len(content_a), len(content_b))
         for i in range(common_len):
-            if contenta[i].rstrip().lower() != contentb[i].rstrip().lower():
-                lib.report("WA", "Wrong answer at line %d: Read '%s' and '%s'." % (i + 1, lib.escapeStr(contenta[i].rstrip()), lib.escapeStr(contentb[i].rstrip())))
+            if content_a[i].rstrip().lower() != content_b[i].rstrip().lower():
+                lib.report("WA", f"Wrong answer at line {i + 1}: Read '{lib.escape_str(content_a[i].rstrip())}' and '{lib.escape_str(content_b[i].rstrip())}'.")
                 return
-        if len(contenta) > len(contentb):
-            lib.report("WA", "Program 2 answer too short.")
+        if len(content_a) > len(content_b):
+            lib.report("WA", "Program B answer too short.")
             return
-        elif len(contenta) < len(contentb):
-            lib.report("WA", "Program 1 answer too short.")
+        if len(content_a) < len(content_b):
+            lib.report("WA", "Program A answer too short.")
             return
         lib.report("AC", "Accepted.")
-        return
+
+
 judger = CaseInsensitive()
 judger()
